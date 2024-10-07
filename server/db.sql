@@ -26,7 +26,7 @@ CREATE TABLE products (
     name VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
     price DECIMAL(10, 2) NOT NULL,
-    image VARCHAR(255) NOT NULL,  -- This ensures the image is required
+    image VARCHAR(255) NOT NULL,  
     category VARCHAR(255) NOT NULL,
     is_featured BOOLEAN NOT NULL DEFAULT false,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -40,3 +40,11 @@ CREATE TRIGGER update_product_modtime
     BEFORE UPDATE ON products
     FOR EACH ROW
     EXECUTE FUNCTION update_modified_column();
+
+CREATE TABLE cart_items (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+    quantity INTEGER NOT NULL DEFAULT 1,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
