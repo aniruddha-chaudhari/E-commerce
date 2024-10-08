@@ -48,3 +48,21 @@ CREATE TABLE cart_items (
     quantity INTEGER NOT NULL DEFAULT 1,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE orders (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) NOT NULL,
+    total_amount DECIMAL(10, 2) NOT NULL CHECK (total_amount >= 0),
+    stripe_session_id VARCHAR(255) UNIQUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create Order_Items table for the products array
+CREATE TABLE order_items (
+    id SERIAL PRIMARY KEY,
+    order_id INTEGER REFERENCES orders(id) NOT NULL,
+    product_id INTEGER REFERENCES products(id) NOT NULL,
+    quantity INTEGER NOT NULL CHECK (quantity >= 1),
+    price DECIMAL(10, 2) NOT NULL CHECK (price >= 0),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
