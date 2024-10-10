@@ -16,7 +16,7 @@ export const getAnalytics = async (req, res) => {
 
 const getDailySalesData = async (startDate, endDate) => {
     const dailySalesQuery = `
-        SELECT date_trunc('day', created_at) as day, SUM(total_amount) as total
+        SELECT date_trunc('day', created_at) as day, COUNT(*) as sales, SUM(total_amount) as revenue
         FROM orders
         WHERE created_at BETWEEN $1 AND $2
         GROUP BY day
@@ -24,5 +24,25 @@ const getDailySalesData = async (startDate, endDate) => {
     `;
     const { rows } = await pool.query(dailySalesQuery, [startDate, endDate]);
 
-    return rows;
+    const datearray = getDatesinrange(startDate, endDate);
+
+    return datearray.map(date => {
+        const record = rows.find(row => row.day.toDateString() === date.toDateString());
+        return {
+            date: date,
+            sales: record ? record.sales : 0,
+            revenue: record ? record.revenue : 0
+        };
+    }
+    );
 };
+
+function getDatesinrange(startDate, endDate) {
+    const dates = [];
+    let currentDate = startDate;
+    while (currentDate <= endDate) {
+        dates.push(new Date(currentDate));
+        currentDate.setDate(currentDate.getDate() + 1);
+    }
+    return dates;
+}
