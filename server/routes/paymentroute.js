@@ -1,9 +1,9 @@
-import express, { Router } from "express";
-import { protectRoute } from "../middleware/authMiddleware";
-import { createpaymentsession } from "../controllers/paymentcontroller";
+import express from 'express';
+import { protectRoute } from "../middleware/authMiddleware.js";
+import { createpaymentsession } from "../controllers/paymentcontroller.js";
 
 
-const router = Router();
+const router = express.Router();
 
 router.post("/create-payment-session", protectRoute,createpaymentsession);
 
