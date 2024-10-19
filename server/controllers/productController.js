@@ -1,6 +1,6 @@
-import cloudinary from "../lib/cloudinary";
-import pool from "../lib/db";
-import redis from "../lib/redis";
+import cloudinary from "../lib/cloudinary.js";
+import pool from "../lib/db.js";
+import redis from "../lib/redis.js";
 
 export const getAllproducts = async (req, res) => {
     try {

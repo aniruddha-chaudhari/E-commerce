@@ -11,14 +11,14 @@ export const protectRoute = async (req, res, next) => {
 
         try {
             const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+
             const userResult = await pool.query("SELECT * FROM users WHERE id = $1", [decoded.id]);
-            const { password, ...user } = userResult.rows[0];
 
-
-            if (!user.rows[0]) {
+            if (!userResult.rows.length) {
                 return res.status(401).json({ message: "User not found" });
             }
 
+            const { password, ...user } = userResult.rows[0];
             req.user = user;
 
             next();

@@ -22,6 +22,7 @@ const setCookies = (res, accessToken, refreshToken) => {
 
 export const signup = async (req, res) => {
     const { name, email, password } = req.body;
+    console.log(req.body);
 
     try {
         const user = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
@@ -47,7 +48,9 @@ export const signup = async (req, res) => {
             id: newUser.rows[0].id,
             name: newUser.rows[0].name,
             email: newUser.rows[0].email,
+            role: newUser.rows[0].role,
         });
+        console.log('User created successfully');
 
 
     } catch (error) {
@@ -79,6 +82,7 @@ export const login = async (req, res) => {
                 id: user.rows[0].id,
                 name: user.rows[0].name,
                 email: user.rows[0].email,
+                role: user.rows[0].role,
             });
         }else{
             res.status(400).json('Invalid Credentials');
@@ -131,6 +135,7 @@ export const refreshtoken = async (req, res) => {
 export const getProfile = async (req, res) => {
 try{
     res.status(200).json(req.user);
+    console.log(req.user);
 }catch(error){
     console.error(error.message);
     res.status(500).json('Server Error', error.message);

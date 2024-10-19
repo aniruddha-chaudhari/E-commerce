@@ -1,11 +1,12 @@
-const express = require('express');
-const { protectRoute, AdminRoute } = require('../middleware/authMiddleware');
+import express from 'express';
+import { protectRoute,AdminRoute } from '../middleware/authMiddleware.js';
+import { getAnalytics, getDailySalesData } from '../controllers/analyticscontroller.js';
 
 const router = express.Router();
 
 // Define your routes here
 
-router.get(protectRoute,AdminRoute,async (req,res) => {
+router.get('/',protectRoute,AdminRoute,async (req,res) => {
 try{const analyticsdata = await getAnalytics();
 
 const endDate = new Date();
@@ -19,4 +20,4 @@ console.error(error);
 }
 });
 
-module.exports = router;
+export default router;

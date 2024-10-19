@@ -14,7 +14,7 @@ export const getAnalytics = async (req, res) => {
     }
 };
 
-const getDailySalesData = async (startDate, endDate) => {
+export const getDailySalesData = async (startDate, endDate) => {
     const dailySalesQuery = `
         SELECT date_trunc('day', created_at) as day, COUNT(*) as sales, SUM(total_amount) as revenue
         FROM orders
