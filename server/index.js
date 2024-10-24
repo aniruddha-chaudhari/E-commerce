@@ -7,6 +7,8 @@ import cartRoutes from './routes/cartRoutes.js';
 import paymentRoutes from './routes/paymentroute.js';
 import analyticsRoutes from './routes/analyticsroutes.js';
 import cookieParser from 'cookie-parser';
+import bodyParser from 'body-parser';
+
 
 dotenv.config();
 
@@ -14,13 +16,14 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT;
 
-app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
     origin: "http://localhost:5173",
     credentials: true
 }));
 
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);

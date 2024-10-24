@@ -8,10 +8,10 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 
 const AnalyticsTab = () => {
   const [analyticsData, setAnalyticsData] = useState({
-    users: 0,
-    products: 0,
-    totalSales: 0,
-    totalRevenue: 0,
+    totalusers: 0,
+    totalproducts: 0,
+    totalorders: 0,
+    revenue: 0,
   })
   const [isLoading, setIsLoading] = useState(true)
   const [dailySalesData, setDailySalesData] = useState([])
@@ -41,25 +41,25 @@ const AnalyticsTab = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <AnalyticsCard
           title="Total Users"
-          value={analyticsData.users.toLocaleString()}
+          value={analyticsData.totalusers.toLocaleString()}
           icon={Users}
           color="from-indigo-500 to-purple-600"
         />
         <AnalyticsCard
           title="Total Products"
-          value={analyticsData.products.toLocaleString()}
+          value={analyticsData.totalproducts.toLocaleString()}
           icon={Package}
           color="from-indigo-500 to-blue-600"
         />
         <AnalyticsCard
           title="Total Sales"
-          value={analyticsData.totalSales.toLocaleString()}
+          value={analyticsData.totalorders.toLocaleString()}
           icon={ShoppingCart}
           color="from-indigo-500 to-cyan-600"
         />
         <AnalyticsCard
           title="Total Revenue"
-          value={`$${analyticsData.totalRevenue.toLocaleString()}`}
+          value={`$${analyticsData.revenue.toLocaleString()}`}
           icon={DollarSign}
           color="from-indigo-500 to-violet-600"
         />

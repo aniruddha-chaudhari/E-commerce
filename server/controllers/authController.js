@@ -6,10 +6,14 @@ import bcrypt from 'bcryptjs';
 
 const generateTokens = async (id) => {
     const accessToken = jwt.sign({ id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' });
-    const refreshToken = jwt.sign({ id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '30d' });
+    const refreshToken = jwt.sign({ id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '30d' });
 
     return { accessToken, refreshToken };
 }
+
+const invalidateOldToken = async (userId) => {
+    await redis.del(`refresh_token_${userId}`);
+};
 
 const storeRefreshToken = async (id, refreshToken) => {
     await redis.set(`refresh_token_${id}`, refreshToken, 'EX', 30 * 24 * 60 * 60);
@@ -22,7 +26,6 @@ const setCookies = (res, accessToken, refreshToken) => {
 
 export const signup = async (req, res) => {
     const { name, email, password } = req.body;
-    console.log(req.body);
 
     try {
         const user = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
@@ -41,6 +44,7 @@ export const signup = async (req, res) => {
         const bcryptPassword = await bcrypt.hash(password, salt);
         const newUser = await pool.query('INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *', [name, email, bcryptPassword]);
         const { accessToken, refreshToken } = await generateTokens(newUser.rows[0].id);
+        await invalidateOldToken(user.rows[0].id);
         await storeRefreshToken(newUser.rows[0].id, refreshToken);
         setCookies(res, accessToken, refreshToken);
 
@@ -50,7 +54,6 @@ export const signup = async (req, res) => {
             email: newUser.rows[0].email,
             role: newUser.rows[0].role,
         });
-        console.log('User created successfully');
 
 
     } catch (error) {
@@ -75,6 +78,7 @@ export const login = async (req, res) => {
 
         if(user.rows.length > 0 && validPassword) {
             const { accessToken, refreshToken } = await generateTokens(user.rows[0].id);
+            await invalidateOldToken(user.rows[0].id);
             await storeRefreshToken(user.rows[0].id, refreshToken);
             setCookies(res, accessToken, refreshToken);
 
@@ -84,15 +88,11 @@ export const login = async (req, res) => {
                 email: user.rows[0].email,
                 role: user.rows[0].role,
             });
-        }else{
-            res.status(400).json('Invalid Credentials');
         }
-
-    } catch {
-        res.status(500).json('Server Error', error.message);
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error', error: error.message });
     }
 };
-
 
 export const logout = async (req, res) => {
     try {
@@ -104,7 +104,7 @@ export const logout = async (req, res) => {
         res.clearCookie('accessToken');
         res.clearCookie('refreshToken');
         res.status(200).json('Logged out');
-    } catch {
+    } catch(error) {
         res.status(500).json('Server Error', error.message);
     }
 };
@@ -112,31 +112,34 @@ export const logout = async (req, res) => {
 export const refreshtoken = async (req, res) => { 
     try {
         const { refreshToken } = req.cookies;
+        console.log('Received refresh token:', refreshToken); // Log the received refresh token
         if (!refreshToken) {
             return res.status(401).json('Access Denied');
         };
-        const decoded = jwt.verify(refreshToken, process.env.ACCESS_TOKEN_SECRET);
+        const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+        console.log('Decoded token:', decoded); // Log the decoded token
         const token = await redis.get(`refresh_token_${decoded.id}`);
+        console.log('Token from Redis:', token); // Log the token retrieved from Redis
         if (token !== refreshToken) {
+            console.log('Token not found in redis');
             return res.status(401).json('Access Denied');
         };
         const accessToken = jwt.sign({ id: decoded.id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' });
 
         res.cookie('accessToken', accessToken, { httpOnly: true, sameSite: 'strict', secure: true, maxAge: 15 * 60 * 1000 });
 
-      
-		res.json({ message: "Token refreshed successfully" });
-	} catch (error) {
-		console.log("Error in refreshToken controller", error.message);
-		res.status(500).json({ message: "Server error", error: error.message });
-	}
+        res.json({ message: "Token refreshed successfully" });
+    } catch (error) {
+        console.log("Error in refreshToken controller", error.message);
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
 };
 
 export const getProfile = async (req, res) => {
 try{
     res.status(200).json(req.user);
-    console.log(req.user);
 }catch(error){
-    console.error(error.message);
-    res.status(500).json('Server Error', error.message);
+    console.error(error);
+    
+    res.status(500).json(error.message);
 }};

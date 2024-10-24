@@ -1,3 +1,5 @@
+import pool from '../lib/db.js';
+
 export const getAnalytics = async (req, res) => {
 
     const toatlusers = await pool.query("SELECT COUNT(*) FROM users");

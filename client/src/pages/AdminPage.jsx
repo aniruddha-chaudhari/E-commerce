@@ -15,7 +15,7 @@ const tabs = [
   { id: "analytics", label: "Analytics", icon: BarChart },
 ]
 
-export default function AdminPage() {
+export default function AdminPage() {  
   const [activeTab, setActiveTab] = useState("create")
   const { fetchAllProducts } = useProductStore();
 
