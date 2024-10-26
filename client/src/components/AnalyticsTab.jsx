@@ -21,7 +21,9 @@ const AnalyticsTab = () => {
       try {
         const response = await axios.get("/analytics")
         setAnalyticsData(response.data.analyticsData)
+        console.log(response.data.dailySalesData)
         setDailySalesData(response.data.dailySalesData)
+        console.log(dailySalesData)
       } catch (error) {
         console.error("Error fetching analytics data:", error)
       } finally {

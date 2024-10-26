@@ -54,7 +54,7 @@ export default function AdminPage() {
           </div>
         </div>
 
-        <div className="bg-white shadow-md rounded-lg p-6">
+        <div>
           {activeTab === "create" && <CreateProductForm />}
           {activeTab === "products" && <ProductsList />}
           {activeTab === "analytics" && <AnalyticsTab />}

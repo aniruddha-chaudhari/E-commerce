@@ -7,11 +7,10 @@ import { useProductStore } from "../store/useProductStore"
 const ProductsList = () => {
   const { deleteProduct, toggleFeaturedProduct, products } = useProductStore()
 
-  console.log("products", products)
 
   return (
     <motion.div
-      className="bg-white shadow-lg rounded-lg overflow-hidden max-w-4xl mx-auto"
+      className="bg-white shadow-lg rounded-lg overflow-hidden max-w-6xl mx-auto"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8 }}
@@ -53,7 +52,7 @@ const ProductsList = () => {
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {products?.map((product) => (
-            <tr key={product._id} className="hover:bg-indigo-50">
+            <tr key={product.id} className="hover:bg-indigo-50">
               <td className="px-6 py-4 whitespace-nowrap">
                 <div className="flex items-center">
                   <div className="flex-shrink-0 h-10 w-10">
